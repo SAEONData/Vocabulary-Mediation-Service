@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using VocabularyMediationService.Interfaces;
 using VocabularyMediationService.Providers;
 
 namespace VocabularyMediationService.Controllers
@@ -39,18 +40,36 @@ namespace VocabularyMediationService.Controllers
 
         [Route("search/{providerName}/{searchPhrase}")]
         [HttpGet]
-        public string Search(string providerName, string searchPhrase)
+        public JsonResult Search(string providerName, string searchPhrase)
         {
-            string result = "success";
+            IProvider provider = GetProvider(providerName);
+            return Json(provider.Search(searchPhrase).Result);
+        }
 
+        [Route("view/{providerName}/{identifier}")]
+        [HttpGet]
+        public JsonResult View(string providerName, string identifier)
+        {
+            IProvider provider = GetProvider(providerName);
+            return Json(provider.View(identifier).Result);
+        }
+
+
+        //Helper Functions
+        private IProvider GetProvider(string providerName)
+        {
             switch (providerName.ToLower())
             {
                 case "orcid":
-                    var provider = new ProviderOrcid("", "");
-                    break;
+                    return new ProviderOrcid();
+
+                case "re3data":
+                    return new ProviderRe3Data();
+
+                default:
+                    throw new ArgumentException($"Invalid provider name: {providerName}");
             }
 
-            return result; //$"Provider: {provider}, Phrase: {phrase}";
         }
     }
 }

@@ -19,6 +19,10 @@ namespace VocabularyMediationService
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    config.AddJsonFile("secrets.json", optional: false, reloadOnChange: true);
+                })
                 .UseStartup<Startup>()
                 .Build();
     }

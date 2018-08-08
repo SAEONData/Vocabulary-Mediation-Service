@@ -1,23 +1,26 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml;
 using VocabularyMediationService.Interfaces;
-using VocabularyMediationService.Models.Orcid;
+using VocabularyMediationService.Models.Re3DataModels;
 
 namespace VocabularyMediationService.Providers
 {
-    public class ProviderOrcid : IProvider
+    public class ProviderRe3Data : IProvider
     {
         private HttpClient _client { get; }
 
-        public ProviderOrcid()
+        public ProviderRe3Data()
         {
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Accept.Clear();
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.orcid+json"));
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
         }
 
         public async Task<object> Search(string searchPhrase)
@@ -25,20 +28,25 @@ namespace VocabularyMediationService.Providers
             object result = "";
 
             //Call API
-            HttpResponseMessage response = await _client.GetAsync($"https://pub.orcid.org/v2.1/search?q=\"{searchPhrase}\"");
+            HttpResponseMessage response = await _client.GetAsync($"https://www.re3data.org/api/beta/repositories?query={searchPhrase}");
 
             //Parse response
             if (response.IsSuccessStatusCode)
             {
                 var responseStr = await response.Content.ReadAsStringAsync();
 
+                //Load XML
+                var doc = new XmlDocument();
+                doc.LoadXml(responseStr);
+
                 //Convert to Json
-                var jobj = JObject.Parse(responseStr);
+                var jstr = JsonConvert.SerializeXmlNode(doc);
+                var jobj = JObject.Parse(jstr);
 
                 result = jobj;
 
                 //Convert to Object
-                //result = JsonConvert.DeserializeObject<SearchResult>(responseStr);
+                //result = JsonConvert.DeserializeObject<Repositories>(jstr);
             }
 
             return result;
@@ -49,20 +57,22 @@ namespace VocabularyMediationService.Providers
             object result = "";
 
             //Call API
-            HttpResponseMessage response = await _client.GetAsync($"https://pub.orcid.org/v2.1/{identifier}"); //0000-0002-5662-263X
+            HttpResponseMessage response = await _client.GetAsync($"https://www.re3data.org/api/beta/repository/{identifier}");
 
             //Parse response
             if (response.IsSuccessStatusCode)
             {
                 var responseStr = await response.Content.ReadAsStringAsync();
 
+                //Load XML
+                var doc = new XmlDocument();
+                doc.LoadXml(responseStr);
+
                 //Convert to Json
-                var jobj = JObject.Parse(responseStr);
+                var jstr = JsonConvert.SerializeXmlNode(doc);
+                var jobj = JObject.Parse(jstr);
 
                 result = jobj;
-
-                //Convert to Object
-                //result = JsonConvert.DeserializeObject<Record>(responseStr);
             }
 
             return result;
