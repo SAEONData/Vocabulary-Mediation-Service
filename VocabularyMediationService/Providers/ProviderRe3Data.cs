@@ -8,7 +8,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml;
 using VocabularyMediationService.Interfaces;
-using VocabularyMediationService.Models.Re3DataModels;
+using VocabularyMediationService.Models;
 
 namespace VocabularyMediationService.Providers
 {
@@ -43,10 +43,24 @@ namespace VocabularyMediationService.Providers
                 var jstr = JsonConvert.SerializeXmlNode(doc);
                 var jobj = JObject.Parse(jstr);
 
-                result = jobj;
+                var parsedItems = jobj["list"]["repository"].
+                    Select(x => new StandardVocabItem()
+                    {
+                        UID = x["id"].ToString(),
+                        Value = x["name"].ToString(),
+                        AdditionalData = new List<StandardVocabAdditionalData>()
+                        {
+                            new StandardVocabAdditionalData()
+                            {
+                                Key = "link",
+                                Value = x["link"]["@href"].ToString()
+                            }
+                        }
+                    })
+                    .OrderBy(x => x.Value)
+                    .ToList();
 
-                //Convert to Object
-                //result = JsonConvert.DeserializeObject<Repositories>(jstr);
+                result = new StandardVocabOutput() { Items = parsedItems };
             }
 
             return result;
@@ -72,7 +86,7 @@ namespace VocabularyMediationService.Providers
                 var jstr = JsonConvert.SerializeXmlNode(doc);
                 var jobj = JObject.Parse(jstr);
 
-                result = jobj;
+                result = jobj["r3d:re3data"]["r3d:repository"];
             }
 
             return result;

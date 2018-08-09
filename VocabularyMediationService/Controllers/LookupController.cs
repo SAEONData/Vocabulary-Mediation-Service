@@ -66,6 +66,9 @@ namespace VocabularyMediationService.Controllers
                 case "re3data":
                     return new ProviderRe3Data();
 
+                case "sagdad":
+                    return new ProviderSAGDAD();
+
                 default:
                     throw new ArgumentException($"Invalid provider name: {providerName}");
             }
