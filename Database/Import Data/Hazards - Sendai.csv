@@ -1,0 +1,74 @@
+Hazard Family,Sub-Family,Hazard,Sub-Hazard
+Natural ,Geophysical,Earthquake,
+Natural ,Geophysical,Tsunami,
+Natural ,Geophysical,Mass movement by geological events (may overlap with landslide types),
+Natural ,Geophysical,Volcanic activity,Eruption
+Natural ,Geophysical,Volcanic activity,Lava flow
+Natural ,Geophysical,Volcanic activity,Ash fall
+Natural ,Geophysical,Volcanic activity,Pyroclastic flow
+Natural ,Geophysical,Volcanic activity,Lahar
+Natural ,Hydrological,Flood,Riverine flood
+Natural ,Hydrological,Flood,Coastal flood
+Natural ,Hydrological,Flood,Ponding flood
+Natural ,Hydrological,Flood,Urban flood
+Natural ,Hydrological,Flood,Flash flood
+Natural ,Hydrological,Landslide,Avalanche
+Natural ,Hydrological,Landslide,Rock fall
+Natural ,Hydrological,Landslide,Mud flow
+Natural ,Hydrological,Landslide,Debris flow
+Natural ,Hydrological,Landslide,Subsidence
+Natural ,Hydrological,Wave Action,Coastal erosion
+Natural ,Hydrological,Wave Action,Shoreline change
+Natural ,Meteorological,Convective Storm,Rain
+Natural ,Meteorological,Convective Storm,Wind
+Natural ,Meteorological,Convective Storm,Hail
+Natural ,Meteorological,Convective Storm,Snow
+Natural ,Meteorological,Convective Storm,Ice
+Natural ,Meteorological,Convective Storm,Blizzard
+Natural ,Meteorological,Convective Storm,Lightning
+Natural ,Meteorological,Convective Storm,Sand
+Natural ,Meteorological,Convective Storm,Dust
+Natural ,Meteorological,Convective Storm,Derecho
+Natural ,Meteorological,Convective Storm,Tornado
+Natural ,Meteorological,Extra-tropical storm ,
+Natural ,Meteorological,Extreme temperature,Cold wave
+Natural ,Meteorological,Extreme temperature,Heat wave
+Natural ,Meteorological,Extreme temperature,Frost
+Natural ,Meteorological,Extreme temperature,Freeze
+Natural ,Meteorological,Fog Tropical cyclone,Cyclonic wind
+Natural ,Meteorological,Fog Tropical cyclone,Cyclonic rain
+Natural ,Meteorological,Fog Tropical cyclone,Cyclone surge
+Natural ,Climatological,Drought ,
+Natural ,Climatological,Glacial lake outburst (GLOF) ,
+Natural ,Climatological,Wildfire,
+Natural ,Extra-terrestrial,Impact,
+Natural ,Extra-terrestrial,Space weather,
+Environmental ,Environmental Degradation,Erosion,
+Environmental ,Environmental Degradation,Deforestation,
+Environmental ,Environmental Degradation,Salinization,
+Environmental ,Environmental Degradation,Desertification,
+Environmental ,Environmental Degradation,Asian dust cloud,
+Environmental ,Environmental Degradation,Wetland loss/ degradation,
+Environmental ,Environmental Degradation,Glacier retreat/ melting,
+Biological ,Biological,Epidemics,
+Biological ,Biological,Pandemics,
+Biological ,Biological,Epizootics,
+Biological ,Biological,Pest,
+Biological ,Biological,Insect infestation,
+Biological ,Biological,Animal incidents,
+Biological ,Biological,Pollution,
+Man-made,Technological,Industrial disaster,
+Man-made,Technological,Structural collapse,
+Man-made,Technological,Power outage,
+Man-made,Technological,Fire,
+Man-made,Technological,Industrial explosion,
+Man-made,Technological,Mine disaster,
+Man-made,Chemical and radiological ,Chemical spill,
+Man-made,Chemical and radiological ,Oil spill,
+Man-made,Chemical and radiological ,Radiation contamination,
+Man-made,Chemical and radiological ,Nuclear incident,
+Man-made,Transportation accidents,Aviation accident,
+Man-made,Transportation accidents,Rail accident,
+Man-made,Transportation accidents,Road accident,
+Man-made,Transportation accidents,Navigation accident,
+Man-made,Transportation accidents,Space accident ,

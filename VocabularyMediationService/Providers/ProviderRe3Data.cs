@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -11,15 +12,15 @@ using VocabularyMediationService.Models;
 
 namespace VocabularyMediationService.Providers
 {
-    public class ProviderOrcid : IProvider
+    public class ProviderRe3Data : IProvider
     {
         private HttpClient _client { get; }
 
-        public ProviderOrcid()
+        public ProviderRe3Data()
         {
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Accept.Clear();
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.orcid+json"));
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
         }
 
         public async Task<object> Search(string searchPhrase)
@@ -27,32 +28,35 @@ namespace VocabularyMediationService.Providers
             object result = "";
 
             //Call API
-            HttpResponseMessage response = await _client.GetAsync($"https://pub.orcid.org/v2.1/search?q=\"{searchPhrase}\"");
+            HttpResponseMessage response = await _client.GetAsync($"https://www.re3data.org/api/beta/repositories?query={searchPhrase}");
 
             //Parse response
             if (response.IsSuccessStatusCode)
             {
                 var responseStr = await response.Content.ReadAsStringAsync();
 
-                //Convert to Json
-                var jobj = JObject.Parse(responseStr);
-                //result = jobj;
+                //Load XML
+                var doc = new XmlDocument();
+                doc.LoadXml(responseStr);
 
-                var parsedResult = jobj["result"]
-                    .Select(x => new StandardVocabItem()
+                //Convert to Json
+                var jstr = JsonConvert.SerializeXmlNode(doc);
+                var jobj = JObject.Parse(jstr);
+
+                var parsedItems = jobj["list"]["repository"].
+                    Select(x => new StandardVocabItem()
                     {
-                        Id = x["orcid-identifier"]["path"].ToString(),
-                        Value = x["orcid-identifier"]["path"].ToString(),
+                        Id = x["id"].ToString(),
+                        Value = x["name"].ToString(),
                         AdditionalData = new List<KeyValuePair<string, string>>()
-                            {
-                                new KeyValuePair<string, string>("link", x["orcid-identifier"]["uri"].ToString())
-                            }
+                        {
+                            new KeyValuePair<string, string>("link", x["link"]["@href"].ToString())
+                        }
                     })
                     .OrderBy(x => x.Value)
                     .ToList();
 
-                //Convert to Object
-                result = new StandardVocabOutput() { Items = parsedResult };
+                result = new StandardVocabOutput() { Items = parsedItems };
             }
 
             return result;
@@ -63,17 +67,22 @@ namespace VocabularyMediationService.Providers
             object result = "";
 
             //Call API
-            HttpResponseMessage response = await _client.GetAsync($"https://pub.orcid.org/v2.1/{identifier}");
+            HttpResponseMessage response = await _client.GetAsync($"https://www.re3data.org/api/beta/repository/{identifier}");
 
             //Parse response
             if (response.IsSuccessStatusCode)
             {
                 var responseStr = await response.Content.ReadAsStringAsync();
 
-                //Convert to Json
-                var jobj = JObject.Parse(responseStr);
+                //Load XML
+                var doc = new XmlDocument();
+                doc.LoadXml(responseStr);
 
-                result = jobj;
+                //Convert to Json
+                var jstr = JsonConvert.SerializeXmlNode(doc);
+                var jobj = JObject.Parse(jstr);
+
+                result = jobj["r3d:re3data"]["r3d:repository"];
             }
 
             return result;
