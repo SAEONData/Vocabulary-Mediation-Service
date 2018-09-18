@@ -27,6 +27,22 @@ namespace VocabularyMediationService.Controllers
             return new StandardVocabOutput { Items = GetHazards(_context.Hazards) };
         }
 
+        [Route("{id}")]
+        [HttpGet]
+        public Hazard Details(string id)
+        {
+            int.TryParse(id, out int parsedId);
+            return _context.Hazards
+                .Include(x => x.HazardType)
+                .Include(x => x.Parent)
+                .Include(x => x.Parent.HazardType)
+                .Include(x => x.Parent.Parent)
+                .Include(x => x.Parent.Parent.HazardType)
+                .Include(x => x.Parent.Parent.Parent)
+                .Include(x => x.Parent.Parent.Parent.HazardType)
+                .FirstOrDefault(x => x.Id == parsedId);
+        }
+
         [Route("Find/{find}")]
         [HttpGet]
         public StandardVocabOutput Find(string find)

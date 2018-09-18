@@ -27,6 +27,20 @@ namespace VocabularyMediationService.Controllers
             return new StandardVocabOutput { Items = GetSectors(_context.Sectors) };
         }
 
+        [Route("{id}")]
+        [HttpGet]
+        public Sector Details(string id)
+        {
+            int.TryParse(id, out int parsedId);
+            return _context.Sectors
+                .Include(x => x.SectorType)
+                .Include(x => x.Parent)
+                .Include(x => x.Parent.SectorType)
+                .Include(x => x.Parent.Parent)
+                .Include(x => x.Parent.Parent.SectorType)
+                .FirstOrDefault(x => x.Id == parsedId);
+        }
+
         [Route("Find/{find}")]
         [HttpGet]
         public StandardVocabOutput Find(string find)
@@ -36,7 +50,7 @@ namespace VocabularyMediationService.Controllers
 
             var sectors = _context.Sectors
                 .Include(x => x.SectorType)
-                .Include(x => x.ParentSector)
+                .Include(x => x.Parent)
                 .Where(x => find == "" || x.Value.ToLower().Contains(find.ToLower()));
 
             dataCache.AddRange(sectors.ToList());
@@ -49,12 +63,12 @@ namespace VocabularyMediationService.Controllers
                 Array.Copy(dataCache.ToArray(), copyCache, dataCache.Count);
                 foreach (var sector in copyCache)
                 {
-                    if (sector.ParentSector != null && !sectors.Any(x => x.Id == sector.ParentSector.Id))
+                    if (sector.Parent != null && !sectors.Any(x => x.Id == sector.Parent.Id))
                     {
                         var parents = _context.Sectors
                                 .Include(x => x.SectorType)
-                                .Include(x => x.ParentSector)
-                                .Where(x => x.Id == sector.ParentSector.Id);
+                                .Include(x => x.Parent)
+                                .Where(x => x.Id == sector.Parent.Id);
 
                         foreach (var parent in parents)
                         {
@@ -71,27 +85,13 @@ namespace VocabularyMediationService.Controllers
             return new StandardVocabOutput { Items = GetSectors(dataCache.AsQueryable()) };
         }
 
-        [Route("{id}")]
-        [HttpGet]
-        public Sector Details(string id)
-        {
-            int.TryParse(id, out int parsedId);
-            return _context.Sectors
-                .Include(x => x.SectorType)
-                .Include(x => x.ParentSector)
-                .Include(x => x.ParentSector.SectorType)
-                .Include(x => x.ParentSector.ParentSector)
-                .Include(x => x.ParentSector.ParentSector.SectorType)
-                .FirstOrDefault(x => x.Id == parsedId);
-        }
-
         //Recursively get Sectors and their 'children'
         private List<StandardVocabItem> GetSectors(IQueryable<Sector> data)
         {
             var result = new List<StandardVocabItem>();
 
             var sectors = data
-                .Where(x => x.ParentSector == null)
+                .Where(x => x.Parent == null)
                 .OrderBy(x => x.Value);
 
             foreach (var sector in sectors)
@@ -99,8 +99,12 @@ namespace VocabularyMediationService.Controllers
                 result.Add(new StandardVocabItem
                 {
                     Id = sector.Id.ToString(),
-                    Value = sector.Value,
-                    Children = GetChildren(data, sector.Id)
+                    Value = sector.Value,                    
+                    Children = GetChildren(data, sector.Id),
+                    AdditionalData = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("SIC_Code", sector.SIC_Code)
+                    }
                 });
             }
 
@@ -113,7 +117,7 @@ namespace VocabularyMediationService.Controllers
             var result = new List<StandardVocabItem>();
 
             var children = data
-                            .Where(x => x.ParentSector != null && x.ParentSector.Id == parentId)
+                            .Where(x => x.Parent != null && x.Parent.Id == parentId)
                             .OrderBy(x => x.Value);
 
             foreach (var child in children)
@@ -122,7 +126,11 @@ namespace VocabularyMediationService.Controllers
                 {
                     Id = child.Id.ToString(),
                     Value = child.Value,
-                    Children = GetChildren(data, child.Id)
+                    Children = GetChildren(data, child.Id),
+                    AdditionalData = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("SIC_Code", child.SIC_Code)
+                    }
                 });
             }
 

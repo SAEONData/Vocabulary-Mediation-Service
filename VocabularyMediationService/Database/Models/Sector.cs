@@ -10,11 +10,12 @@ namespace VocabularyMediationService.Database.Models
     {
         public int Id { get; set; }
         public string Value { get; set; }
+        public string SIC_Code { get; set; }
 
         //FK - SectorType
         public SectorType SectorType { get; set; }
 
         //FK - ParentSector
-        public Sector ParentSector { get; set; }
+        public Sector Parent { get; set; }
     }
 }

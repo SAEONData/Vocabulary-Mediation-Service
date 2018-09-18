@@ -11,9 +11,10 @@ using VocabularyMediationService.Database;
 namespace VocabularyMediationService.Migrations
 {
     [DbContext(typeof(SQLDBContext))]
-    partial class SQLDBContextModelSnapshot : ModelSnapshot
+    [Migration("20180918184951_Added Sector.SIC_Code")]
+    partial class AddedSectorSIC_Code
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +58,7 @@ namespace VocabularyMediationService.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("ParentId");
+                    b.Property<int?>("ParentSectorId");
 
                     b.Property<string>("SIC_Code");
 
@@ -67,7 +68,7 @@ namespace VocabularyMediationService.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("ParentSectorId");
 
                     b.HasIndex("SectorTypeId");
 
@@ -99,9 +100,9 @@ namespace VocabularyMediationService.Migrations
 
             modelBuilder.Entity("VocabularyMediationService.Database.Models.Sector", b =>
                 {
-                    b.HasOne("VocabularyMediationService.Database.Models.Sector", "Parent")
+                    b.HasOne("VocabularyMediationService.Database.Models.Sector", "ParentSector")
                         .WithMany()
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("ParentSectorId");
 
                     b.HasOne("VocabularyMediationService.Database.Models.SectorType", "SectorType")
                         .WithMany()

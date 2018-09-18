@@ -11,9 +11,10 @@ using VocabularyMediationService.Database;
 namespace VocabularyMediationService.Migrations
 {
     [DbContext(typeof(SQLDBContext))]
-    partial class SQLDBContextModelSnapshot : ModelSnapshot
+    [Migration("20180918185945_Renamed Sector.ParentSector to Sector.Parent")]
+    partial class RenamedSectorParentSectortoSectorParent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
