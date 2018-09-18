@@ -12,7 +12,7 @@ namespace VocabularyMediationService.Controllers
 {
     [Produces("application/json")]
     [Route("api")]
-    public class LookupController : Controller
+    class LookupController : Controller
     {
         private IConfiguration _configuration;
 

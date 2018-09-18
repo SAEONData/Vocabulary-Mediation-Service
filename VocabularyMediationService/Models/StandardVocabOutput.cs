@@ -17,29 +17,19 @@ namespace VocabularyMediationService.Models
 
     public class StandardVocabItem
     {
-        public string UID { get; set; }
+        public string Id { get; set; } //Values should be unique
         public string Value { get; set; }
+        public List<StandardVocabItem> Children { get; set; }
 
         //Optional
-        public List<StandardVocabAdditionalData> AdditionalData { get; set; }
+        public List<KeyValuePair<string, string>> AdditionalData { get; set; }
 
         public StandardVocabItem()
         {
-            UID = "";
+            Id = "";
             Value = "";
-            AdditionalData = new List<StandardVocabAdditionalData>();
-        }
-    }
-
-    public class StandardVocabAdditionalData
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-
-        public StandardVocabAdditionalData()
-        {
-            Key = "";
-            Value = "";
+            Children = new List<StandardVocabItem>();
+            AdditionalData = new List<KeyValuePair<string, string>>();
         }
     }
 }

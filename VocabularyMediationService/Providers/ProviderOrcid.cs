@@ -41,20 +41,11 @@ namespace VocabularyMediationService.Providers
                 var parsedResult = jobj["result"]
                     .Select(x => new StandardVocabItem()
                     {
-                        UID = x["orcid-identifier"]["path"].ToString(),
+                        Id = x["orcid-identifier"]["path"].ToString(),
                         Value = x["orcid-identifier"]["path"].ToString(),
-                        AdditionalData = new List<StandardVocabAdditionalData>()
+                        AdditionalData = new List<KeyValuePair<string, string>>()
                             {
-                                new StandardVocabAdditionalData()
-                                {
-                                    Key = "link",
-                                    Value = x["orcid-identifier"]["uri"].ToString()
-                                }/*,
-                                new StandardVocabAdditionalData()
-                                {
-                                    Key = "host",
-                                    Value = x["orcid-identifier"]["host"].ToString()
-                                }*/
+                                new KeyValuePair<string, string>("link", x["orcid-identifier"]["uri"].ToString())
                             }
                     })
                     .OrderBy(x => x.Value)

@@ -46,7 +46,7 @@ namespace VocabularyMediationService.Providers
                 //Filter and parse result
                 var filteredItems = jobj["SAGDAD"]
                     .Where(x => x["text"].ToString().ToLower().Contains(searchPhrase.ToLower()))
-                    .Select(x => new StandardVocabItem { UID = x["id"].ToString(), Value = x["text"].ToString() })
+                    .Select(x => new StandardVocabItem { Id = x["id"].ToString(), Value = x["text"].ToString() })
                     .OrderBy(x => x.Value)
                     .ToList();
 

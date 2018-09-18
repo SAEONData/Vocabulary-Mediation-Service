@@ -46,15 +46,11 @@ namespace VocabularyMediationService.Providers
                 var parsedItems = jobj["list"]["repository"].
                     Select(x => new StandardVocabItem()
                     {
-                        UID = x["id"].ToString(),
+                        Id = x["id"].ToString(),
                         Value = x["name"].ToString(),
-                        AdditionalData = new List<StandardVocabAdditionalData>()
+                        AdditionalData = new List<KeyValuePair<string, string>>()
                         {
-                            new StandardVocabAdditionalData()
-                            {
-                                Key = "link",
-                                Value = x["link"]["@href"].ToString()
-                            }
+                            new KeyValuePair<string, string>("link", x["link"]["@href"].ToString())
                         }
                     })
                     .OrderBy(x => x.Value)
