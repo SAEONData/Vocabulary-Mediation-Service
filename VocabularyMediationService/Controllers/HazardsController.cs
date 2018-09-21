@@ -27,6 +27,32 @@ namespace VocabularyMediationService.Controllers
             return new StandardVocabOutput { Items = GetHazards(_context.Hazards) };
         }
 
+        [HttpGet]
+        [Route("flat")]
+        public StandardVocabOutput ListFlat()
+        {
+            var result = new StandardVocabOutput();
+            var hazards = _context.Hazards
+                .Include(x => x.Parent)
+                .OrderBy(x => x.Value);
+
+            foreach(var haz in hazards)
+            {
+                var stdVocabItem = new StandardVocabItem();
+                stdVocabItem.Id = haz.Id.ToString();
+                stdVocabItem.Value = haz.Value;
+
+                if (haz.Parent != null)
+                {
+                    stdVocabItem.AdditionalData.Add(new KeyValuePair<string, string>("ParentId", haz.Parent.Id.ToString()));
+                }
+
+                result.Items.Add(stdVocabItem);
+            }
+
+            return result;
+        }
+
         [Route("{id}")]
         [HttpGet]
         public Hazard Details(string id)
@@ -92,7 +118,7 @@ namespace VocabularyMediationService.Controllers
         {
             var result = new List<StandardVocabItem>();
 
-            var hazards = data         
+            var hazards = data
                 .Where(x => x.Parent == null)
                 .OrderBy(x => x.Value);
 
