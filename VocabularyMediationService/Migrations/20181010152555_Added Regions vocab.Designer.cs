@@ -11,9 +11,10 @@ using VocabularyMediationService.Database;
 namespace VocabularyMediationService.Migrations
 {
     [DbContext(typeof(SQLDBContext))]
-    partial class SQLDBContextModelSnapshot : ModelSnapshot
+    [Migration("20181010152555_Added Regions vocab")]
+    partial class AddedRegionsvocab
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
