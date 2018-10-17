@@ -32,7 +32,7 @@ namespace VocabularyMediationService
                 options.AddPolicy("CORSPolicy",
                       builder =>
                       {
-                          builder.WithOrigins("http://localhost:8080", "http://app01.saeon.ac.za/vms")
+                          builder.AllowAnyOrigin()
                                  .AllowAnyHeader()
                                  .AllowAnyMethod();
                       });

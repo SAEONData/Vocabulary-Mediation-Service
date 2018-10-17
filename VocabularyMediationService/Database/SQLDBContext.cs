@@ -13,6 +13,8 @@ namespace VocabularyMediationService.Database
         public DbSet<SectorType> SectorTypes { get; set; }
         public DbSet<Hazard> Hazards { get; set; }
         public DbSet<HazardType> HazardTypes { get; set; }
+        public DbSet<Region> Regions { get; set; }
+        public DbSet<RegionType> RegionTypes { get; set; }
 
         public SQLDBContext() : base() { }
 

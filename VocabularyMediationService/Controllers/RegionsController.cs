@@ -12,11 +12,11 @@ using VocabularyMediationService.Models;
 namespace VocabularyMediationService.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Hazards")]
-    public class HazardsController : Controller
+    [Route("api/Regions")]
+    public class RegionsController : Controller
     {
         public SQLDBContext _context { get; }
-        public HazardsController(SQLDBContext context)
+        public RegionsController(SQLDBContext context)
         {
             _context = context;
         }
@@ -24,7 +24,7 @@ namespace VocabularyMediationService.Controllers
         [HttpGet]
         public StandardVocabOutput List()
         {
-            return new StandardVocabOutput { Items = GetHazards(_context.Hazards) };
+            return new StandardVocabOutput { Items = GetRegions(_context.Regions) };
         }
 
         [HttpGet]
@@ -32,19 +32,19 @@ namespace VocabularyMediationService.Controllers
         public StandardVocabOutput ListFlat()
         {
             var result = new StandardVocabOutput();
-            var hazards = _context.Hazards
+            var regions = _context.Regions
                 .Include(x => x.Parent)
                 .OrderBy(x => x.Value);
 
-            foreach(var haz in hazards)
+            foreach (var region in regions)
             {
                 var stdVocabItem = new StandardVocabItem();
-                stdVocabItem.Id = haz.Id.ToString();
-                stdVocabItem.Value = haz.Value;
+                stdVocabItem.Id = region.Id.ToString();
+                stdVocabItem.Value = region.Value;
 
-                if (haz.Parent != null)
+                if (region.Parent != null)
                 {
-                    stdVocabItem.AdditionalData.Add(new KeyValuePair<string, string>("ParentId", haz.Parent.Id.ToString()));
+                    stdVocabItem.AdditionalData.Add(new KeyValuePair<string, string>("ParentId", region.Parent.Id.ToString()));
                 }
 
                 result.Items.Add(stdVocabItem);
@@ -55,17 +55,12 @@ namespace VocabularyMediationService.Controllers
 
         [Route("{id}")]
         [HttpGet]
-        public Hazard Details(string id)
+        public Region Details(string id)
         {
             int.TryParse(id, out int parsedId);
-            return _context.Hazards
-                .Include(x => x.HazardType)
+            return _context.Regions
+                .Include(x => x.Type)
                 .Include(x => x.Parent)
-                .Include(x => x.Parent.HazardType)
-                .Include(x => x.Parent.Parent)
-                .Include(x => x.Parent.Parent.HazardType)
-                .Include(x => x.Parent.Parent.Parent)
-                .Include(x => x.Parent.Parent.Parent.HazardType)
                 .FirstOrDefault(x => x.Id == parsedId);
         }
 
@@ -74,33 +69,33 @@ namespace VocabularyMediationService.Controllers
         public StandardVocabOutput Find(string find)
         {
             //Build filtered data cache
-            var dataCache = new List<Hazard>();
+            var dataCache = new List<Region>();
 
-            var hazards = _context.Hazards
-                .Include(x => x.HazardType)
+            var regions = _context.Regions
+                .Include(x => x.Type)
                 .Include(x => x.Parent)
                 .Where(x => find == "" || x.Value.ToLower().Contains(find.ToLower()));
 
-            dataCache.AddRange(hazards.ToList());
+            dataCache.AddRange(regions.ToList());
 
             bool foundParents = true;
             while (foundParents)
             {
                 foundParents = false;
-                var copyCache = new Hazard[dataCache.Count];
+                var copyCache = new Region[dataCache.Count];
                 Array.Copy(dataCache.ToArray(), copyCache, dataCache.Count);
-                foreach (var hazard in copyCache)
+                foreach (var region in copyCache)
                 {
-                    if (hazard.Parent != null && !hazards.Any(x => x.Id == hazard.Parent.Id))
+                    if (region.Parent != null && !regions.Any(x => x.Id == region.Parent.Id))
                     {
-                        var parents = _context.Hazards
-                                .Include(x => x.HazardType)
+                        var parents = _context.Regions
+                                .Include(x => x.Type)
                                 .Include(x => x.Parent)
-                                .Where(x => x.Id == hazard.Parent.Id);
+                                .Where(x => x.Id == region.Parent.Id);
 
                         foreach (var parent in parents)
                         {
-                            if (!dataCache.Any(x => x.Id == parent.Id))
+                            if (!dataCache.Any(x => x.Value == parent.Value))
                             {
                                 dataCache.Add(parent);
                                 foundParents = true;
@@ -110,33 +105,33 @@ namespace VocabularyMediationService.Controllers
                 }
             }
 
-            return new StandardVocabOutput { Items = GetHazards(dataCache.AsQueryable()) };
+            return new StandardVocabOutput { Items = GetRegions(dataCache.AsQueryable()) };
         }
 
-        //Recursively get Hazards and their 'children'
-        private List<StandardVocabItem> GetHazards(IQueryable<Hazard> data)
+        //Recursively get Sectors and their 'children'
+        private List<StandardVocabItem> GetRegions(IQueryable<Region> data)
         {
             var result = new List<StandardVocabItem>();
 
-            var hazards = data
+            var regions = data
                 .Where(x => x.Parent == null)
                 .OrderBy(x => x.Value);
 
-            foreach (var hazard in hazards)
+            foreach (var region in regions)
             {
                 result.Add(new StandardVocabItem
                 {
-                    Id = hazard.Id.ToString(),
-                    Value = hazard.Value,
-                    Children = GetChildren(data, hazard.Id)
+                    Id = region.Id.ToString(),
+                    Value = region.Value,
+                    Children = GetChildren(data, region.Id)
                 });
             }
 
             return result;
         }
 
-        //Recursively get Hazards and their 'children'
-        private List<StandardVocabItem> GetChildren(IQueryable<Hazard> data, int parentId)
+        //Recursively get Sectors and their 'children'
+        private List<StandardVocabItem> GetChildren(IQueryable<Region> data, int parentId)
         {
             var result = new List<StandardVocabItem>();
 

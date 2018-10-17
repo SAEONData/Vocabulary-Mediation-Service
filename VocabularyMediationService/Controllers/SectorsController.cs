@@ -27,6 +27,32 @@ namespace VocabularyMediationService.Controllers
             return new StandardVocabOutput { Items = GetSectors(_context.Sectors) };
         }
 
+        [HttpGet]
+        [Route("flat")]
+        public StandardVocabOutput ListFlat()
+        {
+            var result = new StandardVocabOutput();
+            var sectors = _context.Sectors
+                .Include(x => x.Parent)
+                .OrderBy(x => x.Value);
+
+            foreach (var sec in sectors)
+            {
+                var stdVocabItem = new StandardVocabItem();
+                stdVocabItem.Id = sec.Id.ToString();
+                stdVocabItem.Value = sec.Value;
+
+                if (sec.Parent != null)
+                {
+                    stdVocabItem.AdditionalData.Add(new KeyValuePair<string, string>("ParentId", sec.Parent.Id.ToString()));
+                }
+
+                result.Items.Add(stdVocabItem);
+            }
+
+            return result;
+        }
+
         [Route("{id}")]
         [HttpGet]
         public Sector Details(string id)
@@ -99,7 +125,7 @@ namespace VocabularyMediationService.Controllers
                 result.Add(new StandardVocabItem
                 {
                     Id = sector.Id.ToString(),
-                    Value = sector.Value,                    
+                    Value = sector.Value,
                     Children = GetChildren(data, sector.Id),
                     AdditionalData = new List<KeyValuePair<string, string>>
                     {
