@@ -27,13 +27,7 @@ namespace VocabularyMediationService.Controllers
         [HttpGet]
         public StandardVocabOutput List()
         {
-            var data = new List<DeptItem>();
-            using (WebClient wc = new WebClient())
-            {
-                var json = wc.DownloadString("http://app01.saeon.ac.za/portal/dev_new/inst.js");
-                data = JsonConvert.DeserializeObject<List<DeptItem>>(json);
-            }
-
+            var data = GetDepartments();
             return new StandardVocabOutput { Items = GetParents(data.AsQueryable()) };
         }
 
@@ -42,20 +36,19 @@ namespace VocabularyMediationService.Controllers
         public StandardVocabOutput ListFlat()
         {
             var items = new List<StandardVocabItem>();
-            //var data = new List<DeptItem>();
-            using (WebClient wc = new WebClient())
-            {
-                var json = wc.DownloadString("http://app01.saeon.ac.za/portal/dev_new/inst.js");
-                var data = JsonConvert.DeserializeObject<List<DeptItem>>(json);
-                items = data.Select(x => new StandardVocabItem {
-                    Id = x.name,
+            var data = GetDepartments();
+
+            items = data
+                .Select(x => new StandardVocabItem
+                {
+                    Id = x.id.ToString(),
                     Value = x.name,
                     AdditionalData = new List<KeyValuePair<string, string>>
                     {
                         new KeyValuePair<string, string>("parent", x.parent)
                     }
-                }).ToList();
-            }
+                })
+                .ToList();
 
             return new StandardVocabOutput { Items = items };
         }
@@ -65,19 +58,15 @@ namespace VocabularyMediationService.Controllers
         {
             var result = new List<StandardVocabItem>();
 
-            var parents = data
-                .Where(x => data.Count(y => y.name == x.parent) == 0)
-                .Select(x => x.parent)
-                .Distinct()
-                .OrderBy(x => x);
+            var parents = data.Where(x => x.parent == "");
 
             foreach (var parent in parents)
             {
                 result.Add(new StandardVocabItem
                 {
-                    Id = parent, //Guid.NewGuid().ToString(),
-                    Value = parent,
-                    Children = GetChildren(data, parent)
+                    Id = parent.id.ToString(),
+                    Value = parent.name,
+                    Children = GetChildren(data, parent.name)
                 });
             }
 
@@ -97,7 +86,7 @@ namespace VocabularyMediationService.Controllers
             {
                 result.Add(new StandardVocabItem
                 {
-                    Id = child.name, //Guid.NewGuid().ToString(),
+                    Id = child.id.ToString(),
                     Value = child.name,
                     Children = GetChildren(data, child.name)
                 });
@@ -105,10 +94,43 @@ namespace VocabularyMediationService.Controllers
 
             return result;
         }
+
+        private List<DeptItem> GetDepartments()
+        {
+            var data = new List<DeptItem>();
+
+            using (WebClient wc = new WebClient())
+            {
+                //Get departments
+                var json = wc.DownloadString("http://app01.saeon.ac.za/portal/dev_new/inst.js");
+                var tmp = JsonConvert.DeserializeObject<List<DeptItem>>(json);
+
+                //Extract and add "parents"
+                var parents = tmp
+                    .Where(x => tmp.Count(y => y.name == x.parent) == 0)
+                    .Select(x => x.parent.Trim())
+                    .Distinct();
+
+                data.AddRange(parents.OrderBy(x => x).Select(x => new DeptItem() { name = x, parent = "" }));
+
+                //Format and order
+                data.AddRange(tmp.Select(x => new DeptItem { name = x.name.Trim(), parent = x.parent.Trim() })
+                    .OrderBy(x => x.parent).ThenBy(x => x.name));
+
+                //Inject IDs
+                for (var index = 0; index < data.Count; index++)
+                {
+                    data[index].id = (index + 1);
+                }
+            }
+
+            return data;
+        }
     }
 
     internal class DeptItem
     {
+        public int id { get; set; }
         public string parent { get; set; }
         public string name { get; set; }
     }
