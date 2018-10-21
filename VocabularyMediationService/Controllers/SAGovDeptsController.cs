@@ -27,25 +27,22 @@ namespace VocabularyMediationService.Controllers
         [HttpGet]
         public StandardVocabOutput List()
         {
-            var data = GetDepartments();
-            return new StandardVocabOutput { Items = GetParents(data.AsQueryable()) };
+            var data = _context.SAGovDepts;
+            return new StandardVocabOutput { Items = GetParents(data) };
         }
 
         [HttpGet]
         [Route("flat")]
         public StandardVocabOutput ListFlat()
         {
-            var items = new List<StandardVocabItem>();
-            var data = GetDepartments();
-
-            items = data
+            var items = _context.SAGovDepts
                 .Select(x => new StandardVocabItem
                 {
-                    Id = x.id.ToString(),
-                    Value = x.name,
+                    Id = x.Id.ToString(),
+                    Value = x.Value,
                     AdditionalData = new List<KeyValuePair<string, string>>
                     {
-                        new KeyValuePair<string, string>("parent", x.parent)
+                        new KeyValuePair<string, string>("parent", x.Parent.Id.ToString())
                     }
                 })
                 .ToList();
@@ -54,19 +51,19 @@ namespace VocabularyMediationService.Controllers
         }
 
         //Recursively get Sectors and their 'children'
-        private List<StandardVocabItem> GetParents(IQueryable<DeptItem> data)
+        private List<StandardVocabItem> GetParents(IQueryable<SAGovDept> data)
         {
             var result = new List<StandardVocabItem>();
 
-            var parents = data.Where(x => x.parent == "");
+            var depts = data.Where(x => x.Parent == null);
 
-            foreach (var parent in parents)
+            foreach (var dept in depts)
             {
                 result.Add(new StandardVocabItem
                 {
-                    Id = parent.id.ToString(),
-                    Value = parent.name,
-                    Children = GetChildren(data, parent.name)
+                    Id = dept.Id.ToString(),
+                    Value = dept.Value,
+                    Children = GetChildren(data, dept.Id)
                 });
             }
 
@@ -74,64 +71,25 @@ namespace VocabularyMediationService.Controllers
         }
 
         //Recursively get Sectors and their 'children'
-        private List<StandardVocabItem> GetChildren(IQueryable<DeptItem> data, string parent)
+        private List<StandardVocabItem> GetChildren(IQueryable<SAGovDept> data, int parentId)
         {
             var result = new List<StandardVocabItem>();
 
-            var children = data
-                            .Where(x => x.parent == parent && x.parent != x.name)
-                            .OrderBy(x => x.name);
+            var depts = data
+                        .Where(x => x.Parent.Id == parentId)
+                        .OrderBy(x => x.Value);
 
-            foreach (var child in children)
+            foreach (var dept in depts)
             {
                 result.Add(new StandardVocabItem
                 {
-                    Id = child.id.ToString(),
-                    Value = child.name,
-                    Children = GetChildren(data, child.name)
+                    Id = dept.Id.ToString(),
+                    Value = dept.Value,
+                    Children = GetChildren(data, dept.Id)
                 });
             }
 
             return result;
         }
-
-        private List<DeptItem> GetDepartments()
-        {
-            var data = new List<DeptItem>();
-
-            using (WebClient wc = new WebClient())
-            {
-                //Get departments
-                var json = wc.DownloadString("http://app01.saeon.ac.za/portal/dev_new/inst.js");
-                var tmp = JsonConvert.DeserializeObject<List<DeptItem>>(json);
-
-                //Extract and add "parents"
-                var parents = tmp
-                    .Where(x => tmp.Count(y => y.name == x.parent) == 0)
-                    .Select(x => x.parent.Trim())
-                    .Distinct();
-
-                data.AddRange(parents.OrderBy(x => x).Select(x => new DeptItem() { name = x, parent = "" }));
-
-                //Format and order
-                data.AddRange(tmp.Select(x => new DeptItem { name = x.name.Trim(), parent = x.parent.Trim() })
-                    .OrderBy(x => x.parent).ThenBy(x => x.name));
-
-                //Inject IDs
-                for (var index = 0; index < data.Count; index++)
-                {
-                    data[index].id = (index + 1);
-                }
-            }
-
-            return data;
-        }
-    }
-
-    internal class DeptItem
-    {
-        public int id { get; set; }
-        public string parent { get; set; }
-        public string name { get; set; }
     }
 }

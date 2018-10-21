@@ -15,6 +15,7 @@ namespace VocabularyMediationService.Database
         public DbSet<HazardType> HazardTypes { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<RegionType> RegionTypes { get; set; }
+        public DbSet<SAGovDept> SAGovDepts { get; set; }
 
         public SQLDBContext() : base() { }
 
