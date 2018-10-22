@@ -35,17 +35,28 @@ namespace VocabularyMediationService.Controllers
         [Route("flat")]
         public StandardVocabOutput ListFlat()
         {
-            var items = _context.SAGovDepts
-                .Select(x => new StandardVocabItem
+            var items = new List<StandardVocabItem>();
+
+            var departments = _context.SAGovDepts;
+            foreach(var dept in departments)
+            {
+                var item = new StandardVocabItem();
+                item.Id = dept.Id.ToString();
+                item.Value = dept.Value;
+
+                var parentId = "";
+                if (dept.Parent != null)
                 {
-                    Id = x.Id.ToString(),
-                    Value = x.Value,
-                    AdditionalData = new List<KeyValuePair<string, string>>
-                    {
-                        new KeyValuePair<string, string>("parent", x.Parent.Id.ToString())
-                    }
-                })
-                .ToList();
+                    parentId = dept.Parent.Id.ToString();
+                }
+
+                item.AdditionalData = new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>("parent", parentId)
+                };
+
+                items.Add(item);
+            }
 
             return new StandardVocabOutput { Items = items };
         }
