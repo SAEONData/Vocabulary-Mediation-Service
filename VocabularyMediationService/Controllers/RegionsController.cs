@@ -60,7 +60,7 @@ namespace VocabularyMediationService.Controllers
             int.TryParse(id, out int parsedId);
             return _context.Regions
                 .Include(x => x.Type)
-                .Include(x => x.Parent)
+                //.Include(x => x.Parent)
                 .FirstOrDefault(x => x.Id == parsedId);
         }
 
