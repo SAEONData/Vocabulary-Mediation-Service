@@ -38,5 +38,8 @@ namespace VocabularyMediationService.Database.Models
 
         [Column(TypeName = "text")]
         public string WKT { get; set; }
+
+        [Column(TypeName = "text")]
+        public string SimpleWKT { get; set; }
     }
 }

@@ -45,6 +45,7 @@ namespace VocabularyMediationService.Controllers
                 if (region.Parent != null)
                 {
                     stdVocabItem.AdditionalData.Add(new KeyValuePair<string, string>("ParentId", region.Parent.Id.ToString()));
+                    stdVocabItem.AdditionalData.Add(new KeyValuePair<string, string>("SimpleWKT", region.SimpleWKT));
                 }
 
                 result.Items.Add(stdVocabItem);
@@ -123,6 +124,10 @@ namespace VocabularyMediationService.Controllers
                 {
                     Id = region.Id.ToString(),
                     Value = region.Value,
+                    AdditionalData = new List<KeyValuePair<string, string>>()
+                    {
+                        new KeyValuePair<string, string>("SimpleWKT", region.SimpleWKT)
+                    },
                     Children = GetChildren(data, region.Id)
                 });
             }
@@ -145,6 +150,10 @@ namespace VocabularyMediationService.Controllers
                 {
                     Id = child.Id.ToString(),
                     Value = child.Value,
+                    AdditionalData = new List<KeyValuePair<string, string>>()
+                    {
+                        new KeyValuePair<string, string>("SimpleWKT", child.SimpleWKT)
+                    },
                     Children = GetChildren(data, child.Id)
                 });
             }
