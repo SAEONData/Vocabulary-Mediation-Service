@@ -21,12 +21,20 @@ namespace VocabularyMediationService.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Get a hierarchical list of Region
+        /// </summary>
+        /// <returns>Hierarchical list of Region</returns>
         [HttpGet]
         public StandardVocabOutput List()
         {
             return new StandardVocabOutput { Items = GetRegions(_context.Regions) };
         }
 
+        /// <summary>
+        /// Get a flat list of Region
+        /// </summary>
+        /// <returns>Flat list of Region</returns>
         [HttpGet]
         [Route("flat")]
         public StandardVocabOutput ListFlat()
@@ -54,6 +62,11 @@ namespace VocabularyMediationService.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Get a specific Region by id
+        /// </summary>
+        /// <param name="id">RegionId</param>
+        /// <returns>Specific Region by id</returns>
         [Route("{id}")]
         [HttpGet]
         public Region Details(string id)
@@ -65,6 +78,11 @@ namespace VocabularyMediationService.Controllers
                 .FirstOrDefault(x => x.Id == parsedId);
         }
 
+        /// <summary>
+        /// Find Region by name (partial match logic applied)
+        /// </summary>
+        /// <param name="find">Search phrase</param>
+        /// <returns>List of Regions that partially matched search term</returns>
         [Route("Find/{find}")]
         [HttpGet]
         public StandardVocabOutput Find(string find)

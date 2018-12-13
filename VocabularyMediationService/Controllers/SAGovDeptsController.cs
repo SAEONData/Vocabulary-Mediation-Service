@@ -24,6 +24,10 @@ namespace VocabularyMediationService.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Get a hierarchical list of (SAGovDept) SA Government Departments
+        /// </summary>
+        /// <returns>Hierarchical list of (SAGovDept) SA Government Departments</returns>
         [HttpGet]
         public StandardVocabOutput List()
         {
@@ -31,6 +35,10 @@ namespace VocabularyMediationService.Controllers
             return new StandardVocabOutput { Items = GetParents(data) };
         }
 
+        /// <summary>
+        /// Get a flat list of (SAGovDept) SA Government Departments
+        /// </summary>
+        /// <returns>Flat list of (SAGovDept) SA Government Departments</returns>
         [HttpGet]
         [Route("flat")]
         public StandardVocabOutput ListFlat()
